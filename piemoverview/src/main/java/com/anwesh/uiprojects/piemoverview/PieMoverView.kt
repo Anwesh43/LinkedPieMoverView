@@ -169,4 +169,27 @@ class PieMoverView(ctx : Context) : View(ctx) {
             curr.startUpdating(cb)
         }
     }
+
+    data class Renderer(var view : PieMoverView) {
+
+        private val lpm : LinkedPieMover = LinkedPieMover(0)
+
+        private val animator : Animator = Animator(view)
+
+        fun render(canvas : Canvas, paint : Paint) {
+            canvas.drawColor(Color.parseColor("#212121"))
+            lpm.draw(canvas, paint)
+            animator.animate {
+                lpm.update {i, fl ->
+                    animator.stop()
+                }
+            }
+        }
+
+        fun handleTap() {
+            lpm.startUpdating {
+                animator.start()
+            }
+        }
+    }
 }
