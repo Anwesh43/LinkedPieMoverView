@@ -15,23 +15,23 @@ import android.graphics.RectF
 
 val nodes : Int = 6
 
-val speed : Float = 0.025f
+val speed : Float = 0.05f
 
 fun Canvas.drawPMNode(i : Int, scale : Float, cb : (Canvas)-> Unit, paint : Paint) {
     val w : Float = width.toFloat()
     val h : Float = height.toFloat()
-    val gap : Float = w / nodes
+    val gap : Float = (w * 0.9f) / nodes
     val deg : Float = 360f / nodes
-    val size : Float = gap / 2
+    val size : Float = gap * 0.75f
     val sc1 : Float = Math.min(0.5f, scale) * 2
     val sc2 : Float = Math.min(0.5f, Math.max(0f, scale - 0.5f)) * 2
     paint.color = Color.parseColor("#673AB7")
     save()
-    translate(gap * sc1, 0f)
+    translate(gap * sc2, 0f)
     cb(this)
     save()
     translate(0.05f * w + gap * i + gap / 2, h/2)
-    drawArc(RectF(-size / 2, -size / 2, size / 2, size / 2), i * deg, deg * sc2 , true, paint)
+    drawArc(RectF(-size / 2, -size / 2, size / 2, size / 2), i * deg, deg * sc1 , true, paint)
     restore()
     restore()
 }
@@ -122,7 +122,7 @@ class PieMoverView(ctx : Context) : View(ctx) {
 
         fun draw(canvas : Canvas, paint : Paint) {
             canvas.drawPMNode(i, state.scale, {
-                next?.draw(it, paint)
+                prev?.draw(it, paint)
             }, paint)
         }
 
