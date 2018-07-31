@@ -145,4 +145,28 @@ class PieMoverView(ctx : Context) : View(ctx) {
             return this
         }
     }
+
+    data class LinkedPieMover(var i : Int) {
+
+        private var curr : PMNode = PMNode(0)
+
+        private var dir : Int = 1
+
+        fun draw(canvas : Canvas, paint : Paint) {
+            curr.draw(canvas, paint)
+        }
+
+        fun update(cb : (Int, Float) -> Unit) {
+            curr.update {i, scale ->
+                curr = curr.getNext(dir) {
+                    dir *= -1
+                }
+                cb(i, scale)
+            }
+        }
+
+        fun startUpdating(cb : () -> Unit) {
+            curr.startUpdating(cb)
+        }
+    }
 }
