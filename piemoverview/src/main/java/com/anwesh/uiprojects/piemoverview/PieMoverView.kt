@@ -4,6 +4,7 @@ package com.anwesh.uiprojects.piemoverview
  * Created by anweshmishra on 01/08/18.
  */
 
+import android.app.Activity
 import android.view.View
 import android.content.Context
 import android.view.MotionEvent
@@ -192,6 +193,15 @@ class PieMoverView(ctx : Context) : View(ctx) {
             lpm.startUpdating {
                 animator.start()
             }
+        }
+    }
+
+    companion object {
+
+        fun create(activity : Activity) : PieMoverView {
+            val view : PieMoverView = PieMoverView(activity)
+            activity.setContentView(view)
+            return view
         }
     }
 }
