@@ -16,7 +16,7 @@ val nodes : Int = 6
 
 val speed : Float = 0.025f
 
-fun Canvas.drawPMNode(i : Int, scale : Float, paint : Paint) {
+fun Canvas.drawPMNode(i : Int, scale : Float, cb : (Canvas)-> Unit, paint : Paint) {
     val w : Float = width.toFloat()
     val h : Float = height.toFloat()
     val gap : Float = w / nodes
@@ -26,8 +26,12 @@ fun Canvas.drawPMNode(i : Int, scale : Float, paint : Paint) {
     val sc2 : Float = Math.min(0.5f, Math.max(0f, scale - 0.5f)) * 2
     paint.color = Color.parseColor("#673AB7")
     save()
-    translate(0.05f * w + gap * i + gap / 2 + gap * sc1, h/2)
+    translate(gap * sc1, 0f)
+    cb(this)
+    save()
+    translate(0.05f * w + gap * i + gap / 2, h/2)
     drawArc(RectF(-size / 2, -size / 2, size / 2, size / 2), i * deg, deg * sc2 , true, paint)
+    restore()
     restore()
 }
 
@@ -51,7 +55,7 @@ class PieMoverView(ctx : Context) : View(ctx) {
     data class State(var scale : Float = 0f, var dir : Float = 0f, var prevScale : Float = 0f) {
 
         fun update(cb : (Float) -> Unit) {
-            scale += 0.1f * dir
+            scale += speed * dir
             if (Math.abs(scale - prevScale) > 1) {
                 scale = prevScale + dir
                 dir = 0f
@@ -93,6 +97,52 @@ class PieMoverView(ctx : Context) : View(ctx) {
             if (animated) {
                 animated = false
             }
+        }
+    }
+
+    data class PMNode(var i : Int, val state : State = State()) {
+
+        var next : PMNode? = null
+
+        var prev : PMNode? = null
+
+        init {
+            addNeighbor()
+        }
+
+        fun addNeighbor() {
+            if (i < nodes - 1) {
+                next = PMNode(i + 1)
+                next?.prev = this
+            }
+        }
+
+        fun draw(canvas : Canvas, paint : Paint) {
+            canvas.drawPMNode(i, state.scale, {
+                next?.draw(it, paint)
+            }, paint)
+        }
+
+        fun update(cb : (Int, Float) -> Unit) {
+            state.update {
+                cb(i, it)
+            }
+        }
+
+        fun startUpdating(cb : () -> Unit) {
+            state.startUpdating(cb)
+        }
+
+        fun getNext(dir : Int, cb : () -> Unit) : PMNode {
+            var curr : PMNode? = prev
+            if (dir == 1) {
+                curr = next
+            }
+            if (curr != null) {
+                return curr
+            }
+            cb()
+            return this
         }
     }
 }
